@@ -5,22 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <style>
-        /* 전체 레이아웃 설정 */
         .container {
             display: flex;
             height: 100vh;
         }
-
-        /* 좌측 그래프 영역 */
         .left-column {
             flex: 7;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
-        /* 우측 투표 버튼 리스트 영역 */
         .right-column {
             flex: 3;
             display: flex;
@@ -29,15 +25,11 @@
             justify-content: center;
             padding: 20px;
         }
-
-        /* 투표 라디오 버튼 */
         .vote-option {
             display: flex;
             align-items: center;
             margin: 5px 0;
         }
-
-        /* Submit 버튼 */
         .submit-button {
             margin-top: 15px;
             padding: 10px 20px;
@@ -47,12 +39,9 @@
 </head>
 <body>
     <div class="container">
-        <!-- 좌측 그래프 영역 -->
         <div class="left-column">
             <canvas id="voteChart"></canvas>
         </div>
-
-        <!-- 우측 투표 버튼 리스트 -->
         <div class="right-column">
             <div id="candidateItems"></div>
             <button class="submit-button" onclick="submitVote()">Submit</button>
@@ -68,7 +57,6 @@
             renderChart();
         });
 
-        // 후보 항목 불러오기
         async function fetchCandidateItems() {
             try {
                 const response = await fetch(`${apiUrl}/candidate-items`);
@@ -80,20 +68,12 @@
             }
         }
 
-        // 라디오 버튼으로 후보 항목 표시
         function displayCandidates(items) {
             const candidateContainer = document.getElementById("candidateItems");
-            candidateContainer.innerHTML = ''; // 기존 내용을 초기화
-
-            if (items.length === 0) {
-                console.warn('No items to display');
-                return; // 항목이 없으면 함수 종료
-            }
-
+            candidateContainer.innerHTML = '';
             items.forEach(item => {
                 const div = document.createElement("div");
                 div.classList.add("vote-option");
-
                 div.innerHTML = `
                     <input type="radio" id="vote${item.id}" name="vote" value="${item.id}">
                     <label for="vote${item.id}">${item.name}</label>
@@ -102,14 +82,12 @@
             });
         }
 
-        // Submit 버튼 클릭 시 선택된 항목에 투표
         async function submitVote() {
             const selectedOption = document.querySelector('input[name="vote"]:checked');
             if (!selectedOption) {
                 alert("Please select an option to vote.");
                 return;
             }
-
             const itemId = selectedOption.value;
             try {
                 const response = await fetch(`${apiUrl}/vote/id?id=${itemId}`, {
@@ -127,7 +105,6 @@
             }
         }
 
-        // 차트 초기화 및 렌더링
         function renderChart() {
             const ctx = document.getElementById('voteChart').getContext('2d');
             chart = new Chart(ctx, {
@@ -143,6 +120,18 @@
                     }]
                 },
                 options: {
+                    plugins: {
+                        datalabels: {
+                            color: '#000',
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value, context) => {
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = (value / total * 100).toFixed(1);
+                                return `${percentage}%`; // 퍼센트 포맷
+                            }
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -156,14 +145,16 @@
                             }
                         }
                     }
-                }
+                },
+                plugins: [ChartDataLabels]
             });
         }
 
-        // 차트 데이터 업데이트
         function updateChartData(items) {
-            chart.data.labels = items.map(item => item.name);
-            chart.data.datasets[0].data = items.map(item => item.votes);
+            const labels = items.map(item => item.name);
+            const votes = items.map(item => item.votes);
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = votes;
             chart.update();
         }
     </script>
