@@ -1,3 +1,5 @@
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 using SimpleVote.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +32,7 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseRouting();
 app.MapControllerRoute(

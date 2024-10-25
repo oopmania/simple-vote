@@ -1,5 +1,20 @@
 {
   "dependencies": {
-    "chart.js": "^4.4.5"
+    "chart.js": "^3.9.1",
+    "chartjs-plugin-datalabels": "^2.0.0"
+  },
+  "devDependencies": {
+    "gulp": "^5.0.0",
+    "gulp-clean": "^0.4.0",
+    "gulp-cli": "^3.0.0",
+    "gulp-concat": "^2.6.1",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "build": "npm install && npm run build:js && dotnet build",
+    "build:js": "gulp build",
+    "clean": "gulp clean",
+    "clean:all": "gulp clean && rimraf node_modules && rimraf wwwroot",
+    "start": "npm run build && dotnet run"
   }
 }
