@@ -40,8 +40,8 @@ _backup.*.json
 .DS_Store
 
 # Web Config
-appsettings.json
-appsettings.Development.json
+# appsettings.json
+# appsettings.Development.json
 
 # Publish outputs
 publish/
